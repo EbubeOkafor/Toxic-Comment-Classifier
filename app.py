@@ -2,7 +2,7 @@ import streamlit as st
 import joblib
 
 # Load model and vectorizer
-model = joblib.load('toxic_model.joblib')
+model = joblib.load('model(1).joblib')
 vectorizer = joblib.load('vectorizer.pkl')
 
 # Toxic comment categories
