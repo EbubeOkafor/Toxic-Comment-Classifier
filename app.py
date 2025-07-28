@@ -20,7 +20,11 @@ if st.button("Classify"):
     else:
         # Transform input
         input_transformed = vectorizer.transform([user_input])
-        prediction = model.predict(input_transformed)[0]
+        prediction = model.predict(input_transformed)
+        if hasattr(prediction, 'toarray'):
+            prediction = prediction.toarray()
+
+        prediction = prediction[0]
 
         # Display results
         st.subheader("Classification Results:")
