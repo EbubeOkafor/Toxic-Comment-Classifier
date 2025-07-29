@@ -59,12 +59,16 @@ streamlit run app.py
 📦 File Structure
 
 .
+
 ├──Toxic-Comment-Classifier
 ├── app.py               # Streamlit web app
+
 ├── toxic_models.joblib/               # Saved trained models (.joblib)
+
 |
 ├──vectorizer.pkl
 ├── requirements.txt     # Python dependencies
+
 └── README.md            # This file
 
 
@@ -93,11 +97,3 @@ Train with deep learning models (BERT, LSTM)
 
 
 ---
-
-🙏 Acknowledgements
-
-Jigsaw/Conversation AI — Original dataset creators
-
-Kaggle Challenge
-
-@username — GitHub repo from which the dataset was imported
