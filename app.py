@@ -1,28 +1,16 @@
 import streamlit as st
 import joblib
-import string
-import re
 
-# Load single-label model and vectorizer
-model = joblib.load('toxic_model.joblib')         # This is for one label
-vectorizer = joblib.load('vectorizer.pkl')        # TF-IDF vectorizer
+# Load model and vectorizer
+model = joblib.load('toxic_models.joblib')
+vectorizer = joblib.load('vectorizer.pkl')
 
-# Target label name (update this if you used a different one)
-target_label = 'identity_hate'
-
-# Preprocessing function
-def preprocess(text):
-    text = text.lower()
-    text = re.sub(r'\d+', '', text)
-    text = text.translate(str.maketrans('', '', string.punctuation))
-    tokens = text.split()
-    stop_words = {"a", "an", "the", "and", "is", "are", "was", "were", "in", "on", "at", "of", "for", "to", "from", "by", "with"}
-    tokens = [word for word in tokens if word not in stop_words]
-    return ' '.join(tokens)
+# Toxic comment categories (for multi-label classification)
+categories = ['toxic', 'severe_toxic', 'obscene', 'threat', 'insult', 'identity_hate']
 
 # Streamlit UI
 st.title("Toxic Comment Classifier")
-st.write(f"Predicts whether a comment is '{target_label}' or clean.")
+st.write("Enter a comment to check if it's toxic or safe.")
 
 user_input = st.text_area("Comment", "")
 
@@ -30,12 +18,29 @@ if st.button("Classify"):
     if user_input.strip() == "":
         st.warning("Please enter a comment.")
     else:
-        cleaned_text = preprocess(user_input)
-        vectorized_input = vectorizer.transform([cleaned_text])
-        prediction = model.predict(vectorized_input)[0]
+        # Transform input
+        input_transformed = vectorizer.transform([user_input])
+        prediction = model.predict(input_transformed)
 
-        st.subheader("Classification Result:")
-        if prediction:
-            st.error(f"⚠️ This comment is classified as **{target_label.upper()}**")
+        if hasattr(prediction, 'toarray'):
+            prediction = prediction.toarray()
+
+        prediction = prediction[0]
+
+        # Map prediction to category
+        results = {label: int(prediction[i]) for i, label in enumerate(categories)}
+        
+        # Display results
+        st.subheader("Classification Results:")
+        toxic_tags = [label.upper() for label, is_toxic in results.items() if is_toxic]
+
+        if toxic_tags:
+            if len(toxic_tags) == 1:
+                st.error(f"⚠️ This comment is classified as: **{toxic_tags[0]}**")
+            else:
+                st.error("⚠️ This comment is toxic in multiple categories:")
+                for tag in toxic_tags:
+                    st.markdown(f"- ❗ **{tag}**")
+                st.info(f"Detected {len(toxic_tags)} toxic categories.")
         else:
-            st.success("✅ This comment is **clean**.")
+            st.success("✅ This comment is clean.")
