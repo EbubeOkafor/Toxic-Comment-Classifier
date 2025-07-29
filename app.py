@@ -3,30 +3,26 @@ import joblib
 import string
 import re
 
-# Load model and vectorizer
-model = joblib.load('toxic_model.joblib')
-vectorizer = joblib.load('vectorizer.pkl')
+# Load single-label model and vectorizer
+model = joblib.load('toxic_model.joblib')         # This is for one label
+vectorizer = joblib.load('vectorizer.pkl')        # TF-IDF vectorizer
 
-# Toxic comment categories
-categories = ['toxic', 'severe_toxic', 'obscene', 'threat', 'insult', 'identity_hate']
-
-# Basic stop words list (you can expand this or use NLTK)
-stop_words = set([
-    "a", "an", "the", "and", "is", "are", "was", "were", "in", "on", "at", "of", "for", "to", "from", "by", "with"
-])
+# Target label name (update this if you used a different one)
+target_label = 'identity_hate'
 
 # Preprocessing function
 def preprocess(text):
-    text = text.lower()  # lowercase
-    text = re.sub(r'\d+', '', text)  # remove digits
-    text = text.translate(str.maketrans('', '', string.punctuation))  # remove punctuation
+    text = text.lower()
+    text = re.sub(r'\d+', '', text)
+    text = text.translate(str.maketrans('', '', string.punctuation))
     tokens = text.split()
-    tokens = [word for word in tokens if word not in stop_words]  # remove stopwords
+    stop_words = {"a", "an", "the", "and", "is", "are", "was", "were", "in", "on", "at", "of", "for", "to", "from", "by", "with"}
+    tokens = [word for word in tokens if word not in stop_words]
     return ' '.join(tokens)
 
 # Streamlit UI
 st.title("Toxic Comment Classifier")
-st.write("Enter a comment to check if it's toxic or safe.")
+st.write(f"Predicts whether a comment is '{target_label}' or clean.")
 
 user_input = st.text_area("Comment", "")
 
@@ -34,20 +30,12 @@ if st.button("Classify"):
     if user_input.strip() == "":
         st.warning("Please enter a comment.")
     else:
-        # Preprocess and transform input
         cleaned_text = preprocess(user_input)
-        input_transformed = vectorizer.transform([cleaned_text])
-        prediction = model.predict(input_transformed)
+        vectorized_input = vectorizer.transform([cleaned_text])
+        prediction = model.predict(vectorized_input)[0]
 
-        if hasattr(prediction, 'toarray'):
-            prediction = prediction.toarray()
-
-        prediction = prediction[0]
-
-        # Display results
-        st.subheader("Classification Results:")
-        for i, label in enumerate(categories):
-            if prediction[i]:
-                st.error(f"⚠️ {label.upper()}")
-        if prediction.sum() == 0:
-            st.success("✅ Comment is clean.")
+        st.subheader("Classification Result:")
+        if prediction:
+            st.error(f"⚠️ This comment is classified as **{target_label.upper()}**")
+        else:
+            st.success("✅ This comment is **clean**.")
