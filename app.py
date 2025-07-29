@@ -2,7 +2,7 @@ import streamlit as st
 import joblib
 
 # Load model dictionary and vectorizer
-models = joblib.load('toxic_model.joblib')  # This is a dict!
+models = joblib.load('toxic_models.joblib')  # This is a dict!
 vectorizer = joblib.load('vectorizer.pkl')
 
 # Labels from the model keys
