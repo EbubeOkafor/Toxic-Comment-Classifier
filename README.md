@@ -12,8 +12,9 @@ This is a **multi-label text classification** project that detects various types
 
 ## 📊 Demo
 
-> ⚡ Try it out locally or deploy it using **Streamlit Cloud**
+Check out the live app here 👉 [Toxic Comment Classifier on Streamlit Cloud]([https://your-app-url.streamlit.app](https://flag-harmful-comment.streamlit.app/))
 
+![App Screenshot](./assets/demo_screenshot.png)
 ---
 
 ## 📁 Dataset
